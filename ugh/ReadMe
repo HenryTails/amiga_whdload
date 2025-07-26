@@ -50,6 +50,11 @@
 
  Thanks to Bert Jahn , Chris Vella , Vandam for tests.
 
+ version 1.4 (26.07.2025) done by HenryTails
+ - granular trainer configuration (remember to remove "Config" Tool Type from Ugh.info file)
+ - 2 more trainer options (4 total)
+ - ability to skip intro
+
  version 1.3 (26.07.2025) done by HenryTails
  - tick Custom1 for basic trainer (lives and energy)
  - disabled highscore save when trainer is used

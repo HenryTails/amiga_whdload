@@ -3,7 +3,7 @@
 ; Game          Ugh!
 ;
 ; Author:       asman, JOTD, HenryTails
-; Version       1.3
+; Version       1.4
 ; History       in ReadMe
 ; Requires      Assembler, NDK, WHDLoad/Src/sources
 ; Copyright     Public Domain
@@ -132,7 +132,7 @@ HRTMON
 
 	ENDC	;IFD RELEASE 
 ;-----------------------------------------------------------------------------
-slv_Version	= 16
+slv_Version	= 17		; bump for slv_config
 slv_Flags	= WHDLF_NoError|WHDLF_Examine
 slv_keyexit	= $59	;F10
 ;-----------------------------------------------------------------------------
@@ -149,12 +149,12 @@ slv_CurrentDir	dc.b	"data",0
 slv_name	dc.b	"Ugh",0
 slv_copy	dc.b	"1992 PlayByte - Ego Software",0
 slv_info	dc.b	"installed & fixed by asman, JOTD & HenryTails",10
-		dc.b	"Version 1.3 "
+			dc.b	"Version 1.4 "
 	IFD BARFLY
 		INCBIN	"T:date"
 	ENDC
 		dc.b	10
-		dc.b	"Thanks to Christian Sauer for original",10,10
+		dc.b	"Thanks to Christian Sauer for original",10    ; we need vertical space
 		dc.b	"=============< BUTTONS >===============",10
 		dc.b	"blue   = F1  key ( start game )        ",10
 		dc.b	"green  = ESC key ( back to title menu )",10
@@ -176,7 +176,12 @@ _bootdos:
 		move.l	d0,(a0)
 		move.l	d0,a6			;A6 = dosbase
 
-;	IFD INVALIDDD	; disable intro for testing
+	; skip intro on Custom2 set
+		lea		(Control_for_Custom2_tag,pc),a0
+		WHDL	Control
+		move.l  (Control_for_Custom2_value,pc),d0	; D0 = value of Custom2
+		tst.l	d0
+		bne.s	skip_intro
 
 	;load intro
 		lea	intro(pc),a3
@@ -184,7 +189,9 @@ _bootdos:
 		jsr	_LVOLoadSeg(a6)
 		move.l	d0,d7			;D7 = seglist
 		beq	error
+
 	;patch intro
+		nop
 
 	;run intro
 		lsl.l	#2,d0
@@ -196,7 +203,7 @@ _bootdos:
 		move.l	_dosbase(pc),a6
 		jsr	_LVOUnLoadSeg(a6)
 
-;	ENDC			; disable intro for testing
+skip_intro:
 
 	;load game
 		lea	game(pc),a3
@@ -274,13 +281,23 @@ patch_hunk_0
 	; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/ugh.md
 		PL_IFC1
 
-		; unlimited lives
-			PL_W	$5698,$4a39
+			PL_IFC1X 0	; Unlimited lives
+				PL_W	$5698,$4a39
+			PL_ENDIF
 
-		; unlimited energy
-			PL_NOPS	$53de,3
-			PL_NOPS	$548a,3
-			PL_NOPS	$54dc,3
+			PL_IFC1X 1	; Unlimited energy
+				PL_NOPS	$53de,3
+				PL_NOPS	$548a,3
+				PL_NOPS	$54dc,3
+			PL_ENDIF
+
+			PL_IFC1X 2	; Disable pterodactyl
+				PL_NOPS	$6600,2
+			PL_ENDIF
+
+			PL_IFC1X 3	; Invincible tree
+				PL_NOPS	$6b10,2
+			PL_ENDIF
 
 	; allow for highscore save only when trainer is disabled
 		PL_ELSE
@@ -504,3 +521,23 @@ file_hiscore	dc.b	"Ugh.highs",0
 	EVEN
 intro:		dc.b	'loader',0
 game:		dc.b	't',0
+
+; ws_config menu
+    EVEN
+
+slv_config:
+    dc.b    "C1:X:Unlimited lives:0;"
+    dc.b    "C1:X:Unlimited energy:1;"
+    dc.b    "C1:X:Disable pterodactyl:2;"
+    dc.b    "C1:X:Invincible tree:3;"
+    dc.b    "C2:B:Skip Intro;"
+    dc.b    0
+
+; skip intro related table
+    EVEN
+
+Control_for_Custom2_tag:
+    dc.l    WHDLTAG_CUSTOM2_GET
+Control_for_Custom2_value:
+    dc.l    0
+    dc.l    0			; TAG_DONE
