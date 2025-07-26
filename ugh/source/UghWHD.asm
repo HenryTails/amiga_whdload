@@ -1,13 +1,15 @@
 ;----------------------------------------------------------------------------- 
-; Author:       asman, JOTD
-; Version       1.2
-; History	
-; Requires	-
-; Copyright	Public Domain
-; Language	68000 Assembler
-; Translator	Barfly V2.9
 ;
-; Game		Ugh
+; Game          Ugh!
+;
+; Author:       asman, JOTD, HenryTails
+; Version       1.3
+; History       in ReadMe
+; Requires      Assembler, NDK, WHDLoad/Src/sources
+; Copyright     Public Domain
+; Language      68000 Assembler
+; Translator    Barfly/Basm v2.17
+; WHDLoad dev   v19.1
 ;----------------------------------------------------------------------------- 
 
 	INCDIR	Includes:
@@ -50,10 +52,11 @@ IGNORE_JOY_DIRECTIONS
 ;
 ; \1 - name of routine without prefix ( resload_ )
 ;
+
 WHDL	MACRO
-		move.l	_resload(pc),a2
-		jsr	resload_\1(a2)
-	ENDM
+			move.l	_resload(pc),a2
+			jsr		resload_\1(a2)
+		ENDM
 
 ;-----------------------------------------------------------------------------
 
@@ -145,8 +148,8 @@ slv_keyexit	= $59	;F10
 slv_CurrentDir	dc.b	"data",0
 slv_name	dc.b	"Ugh",0
 slv_copy	dc.b	"1992 PlayByte - Ego Software",0
-slv_info	dc.b	"installed & fixed by asman & JOTD",10
-		dc.b	"Version 1.2 "
+slv_info	dc.b	"installed & fixed by asman, JOTD & HenryTails",10
+		dc.b	"Version 1.3 "
 	IFD BARFLY
 		INCBIN	"T:date"
 	ENDC
@@ -173,6 +176,8 @@ _bootdos:
 		move.l	d0,(a0)
 		move.l	d0,a6			;A6 = dosbase
 
+;	IFD INVALIDDD	; disable intro for testing
+
 	;load intro
 		lea	intro(pc),a3
 		move.l	a3,d1
@@ -191,6 +196,8 @@ _bootdos:
 		move.l	_dosbase(pc),a6
 		jsr	_LVOUnLoadSeg(a6)
 
+;	ENDC			; disable intro for testing
+
 	;load game
 		lea	game(pc),a3
 		move.l	a3,d1
@@ -201,8 +208,7 @@ _bootdos:
 	;patch game
 		lea	patch_hunk_0(pc),a0
 		move.l	d7,a1
-		move.l	_resload(pc),a2
-		jsr	resload_PatchSeg(a2)
+		WHDL	PatchSeg
 
 PORTS_OFFSET	= $51a4
 		move.l	d7,a1
@@ -265,9 +271,26 @@ patch_hunk_0
 	; CD32 support
 		PL_PS	$399a,fixCD32_int		
 
-	; save hiscore
-		PL_PS	$2506,fixHiscore_Save
-		
+	; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/ugh.md
+		PL_IFC1
+
+		; unlimited lives
+			PL_W	$5698,$4a39
+
+		; unlimited energy
+			PL_NOPS	$53de,3
+			PL_NOPS	$548a,3
+			PL_NOPS	$54dc,3
+
+	; allow for highscore save only when trainer is disabled
+		PL_ELSE
+
+		; save hiscore
+			PL_PS	$2506,fixHiscore_Save
+
+	; end PL_IFC1 section
+		PL_ENDIF
+
 		PL_END
 
 ;-----------------------------------------------------------------------------
