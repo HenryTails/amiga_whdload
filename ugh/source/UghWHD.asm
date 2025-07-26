@@ -3,7 +3,7 @@
 ; Game          Ugh!
 ;
 ; Author:       asman, JOTD, HenryTails
-; Version       1.4
+; Version       1.5
 ; History       in ReadMe
 ; Requires      Assembler, NDK, WHDLoad/Src/sources
 ; Copyright     Public Domain
@@ -149,12 +149,12 @@ slv_CurrentDir	dc.b	"data",0
 slv_name	dc.b	"Ugh",0
 slv_copy	dc.b	"1992 PlayByte - Ego Software",0
 slv_info	dc.b	"installed & fixed by asman, JOTD & HenryTails",10
-			dc.b	"Version 1.4 "
+			dc.b	"Version 1.5 "
 	IFD BARFLY
 		INCBIN	"T:date"
 	ENDC
 		dc.b	10
-		dc.b	"Thanks to Christian Sauer for original",10    ; we need vertical space
+		dc.b	"Thanks to Christian Sauer for original",10    ; ",10" - we need all vertical space
 		dc.b	"=============< BUTTONS >===============",10
 		dc.b	"blue   = F1  key ( start game )        ",10
 		dc.b	"green  = ESC key ( back to title menu )",10
@@ -297,6 +297,34 @@ patch_hunk_0
 
 			PL_IFC1X 3	; Invincible tree
 				PL_NOPS	$6b10,2
+			PL_ENDIF
+
+			PL_IFC1X 4	; Only one mission per level
+				PL_NOPS	$6eca,2
+			PL_ENDIF
+
+			PL_IFC1X 5	; Triceratops ignores you
+				PL_W	$67a0,$6000
+			PL_ENDIF
+
+			PL_IFC1X 6	; Disable water level rise
+				PL_NOPS	$79c8,2
+			PL_ENDIF
+
+			PL_IFC1X 7	; Indestructible vehicles
+				PL_NOPS	$76c2,2
+				PL_W	$5582,$6000
+				PL_NOPS	$765c,2
+				PL_NOPS	$761c,2
+				PL_NOPS	$776c,2
+			PL_ENDIF
+
+			PL_IFC1X 8	; Disable throwing people off the ledges
+				PL_W	$560c,$6000
+			PL_ENDIF
+
+			PL_IFC1X 9	; Almost everyone likes swimming
+				PL_NOPS	$6034,2
 			PL_ENDIF
 
 	; allow for highscore save only when trainer is disabled
@@ -530,6 +558,12 @@ slv_config:
     dc.b    "C1:X:Unlimited energy:1;"
     dc.b    "C1:X:Disable pterodactyl:2;"
     dc.b    "C1:X:Invincible tree:3;"
+    dc.b    "C1:X:Only one mission per level:4;"
+    dc.b    "C1:X:Triceratops ignores you:5;"
+    dc.b    "C1:X:Disable water level rise:6;"
+    dc.b    "C1:X:Indestructible vehicles:7;"
+    dc.b    "C1:X:Disable throwing people off the ledges:8;"
+    dc.b    "C1:X:Almost everyone likes swimming:9;"
     dc.b    "C2:B:Skip Intro;"
     dc.b    0
 

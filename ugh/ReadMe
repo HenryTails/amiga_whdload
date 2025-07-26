@@ -48,7 +48,10 @@
 
  Thanks to Christian Sauer for disk image.
 
- Thanks to Bert Jahn , Chris Vella , Vandam for tests.
+ Thanks to Bert Jahn, Chris Vella, Vandam, Pascal De Maeseneire for tests.
+
+ version 1.5 (26.07.2025) done by HenryTails
+ - 6 more trainer options (10 total)
 
  version 1.4 (26.07.2025) done by HenryTails
  - granular trainer configuration (remember to remove "Config" Tool Type from Ugh.info file)
