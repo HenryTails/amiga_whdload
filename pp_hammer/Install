@@ -1,6 +1,6 @@
 ;****************************
 
-(set #sub-dir "")		;sub directory containing data files
+(set #sub-dir "data")		;sub directory containing data files
 (set #readme-file "Readme")	;name of readme file
 (set #cleanup "")		;files to delete after install
 (set #last-file "pphammer")	;last file the imager should create
