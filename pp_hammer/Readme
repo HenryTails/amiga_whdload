@@ -1,0 +1,26 @@
+That patch applies to PP Hammer (c) 1991 Demonware, both original and
+rerelease version.
+
+This install has the slave-version 1.11 and the imager-version 1.00.
+It needs WHDLoad 0.608 and The Patcher1.05 or higher in the path 
+(eg in c:). To install from a different drive than df0: select
+Expert as installation mode.
+
+Fixed:  Colors are now correct.
+        Problem of the original release with WHDLoad1.1+ fixed.
+
+Default quitkey is numerical *. Change it with the QUITKEY-tooltype.
+
+This install has a dual romicon+newicon (ill do that from now for those
+who fit into the newicon-sizelimitation).
+
+The install is tested with 2 MB on an A1200, and on an 18 MB 68030.
+
+Disclaimer: Although i try to make my installs as reliable as possible, you 
+          use them wholly on your own risk.
+
+Full whdload package:	aminet:dev/misc/whdload#?.lha
+Other installs:		http://www.fh-zwickau.de/~jah/whdload/
+Report bugs with the bug report form on that page.
+
+Harry in January/September 1998.
