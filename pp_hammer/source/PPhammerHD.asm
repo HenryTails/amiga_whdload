@@ -6,16 +6,16 @@
 ;  :Requires.	whdload-package :)
 ;  :Copyright.  GPL
 ;  :Language.	68000 Assembler
-;  :Translator.	ASM-One 1.25
+;  :Translator.	ASM-One 1.25, Barfly/Basm v2.17
 ;  :To Do.
 ;---------------------------------------------------------------------------*
 
 crc_v1	= $e08d ;rerelease
 crc_v2	= $08b8	;original (ntsc?)
 
-
-
-	INCDIR	SOURCES:Include/
+    INCDIR      Sources:
+    INCDIR      Includes:
+;    INCDIR	SOURCES:Include/
 	INCLUDE	whdload.i
 	IFD BARFLY
 	OUTPUT	"PPHammer.slave"
@@ -49,9 +49,10 @@ _expmem		dc.l	0			;ws_ExpMem
 		dc.w	_config-_base		;ws_config
 
 DECL_VERSION:MACRO
-	dc.b	"2.1"
+	dc.b	"2.2"
 	IFD BARFLY
 		dc.b	" "
+		DOSCMD	"WDate  >T:date"
 		INCBIN	"T:date"
 	ENDC
 	IFD	DATETIME
@@ -62,14 +63,19 @@ DECL_VERSION:MACRO
 _curdir
 	dc.b	"data",0
 _config
-	dc.b	"BW;"
-	dc.b	0
+    dc.b    "C1:X:Unlimited lives:0;"
+    dc.b    "C1:X:Unlimited health:1;"
+    dc.b    "C1:X:Unlimited high jump:2;"
+    dc.b    "C1:X:Unlimited oil:3;"
+    dc.b    "C1:X:Unlimited time:4;"
+    dc.b    "C1:X:All gold collected:5;"
+    dc.b    "BW;"
+    dc.b    0
 _name		dc.b	"P.P. Hammer",0
 _copy		dc.b	"1991 Demonware",0
-_info		dc.b	"installed by Harry & JOTD & StingRay",10
+_info		dc.b	"installed by Harry & JOTD & StingRay, T+6 by HenryTails",10
 		dc.b	"Version "
 		DECL_VERSION
-		dc.b	" (03.11.2017)",0
 		dc.b	0
 		even
 
@@ -86,35 +92,34 @@ _start:	;	A0 = resident loader
 		move.l	d0,d1			;mask
 		jsr	(resload_SetCACR,a0)
 
-
-
 	LEA.L	$20000,A1		;ADDY
 	MOVE.L	#$20000,D0		;LEN
 	lea	(pphname,PC),a0	;filename
 	MOVE.L	_resload(PC),a3
 	jsr	(resload_LoadFile,a3)
 
-
-	MOVE.L	#$1000,D0
+    ; calculating CRC to fingerprint version used
 	LEA.L	$20200,A0
+	MOVE.L	#$1000,D0
 	jsr	(resload_CRC16,a3)
 	
-
+    ; 'Retail' or 'Budget: Global'
 	cmp.w	#crc_v2,d0
 	BEQ.S	.org
 	CMP.W	#crc_v1,D0
 	BNE.W	BADVER
 
+	; IPF 2036, sha1 40099ba49f74e6c109e59a4253fb849bfdfddf12
 	MOVE.W	#$4ef9,$2023e
 	pea	patch1(PC)
 	MOVE.L	(A7)+,$20240
-
 
 	move.w	#$60<<8+($4a-$38)-2,$20038	; skip drive access
 	
 	JMP	$20020
 
 	; version 1, PP20 packed
+    ; IPF 2809, sha1 9b7fb8f2e45d00cbd76eccc291e8fe816e91f75d
 .org
 	LEA.L	$1000,A1		;ADDY
 	MOVE.L	#$20000,D0		;LEN
@@ -186,6 +191,36 @@ pl_v2:
 	PL_PSS	$35208,dmacon_wait_1,2
 	PL_PSS	$35212,dmacon_wait_2,2
 
+    ; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/pphammer.md
+
+    PL_IFC1X 0 ; Unlimited lives
+        PL_W    $00006eb8+$2994,$0000
+        PL_W    $00006ec2+$2994,$0000
+    PL_ENDIF
+
+    PL_IFC1X 1 ; Unlimited health
+        PL_W    $0000caea+$2994,$0000
+        PL_W    $0000b0f4+$2994,$0000
+    PL_ENDIF
+
+    PL_IFC1X 2 ; Unlimited high jump
+        PL_W    $00009644+$2994,$0000
+    PL_ENDIF
+
+    PL_IFC1X 3 ; Unlimited oil
+        PL_W    $00009658+$2994,$0000
+    PL_ENDIF
+
+    PL_IFC1X 4 ; Unlimited time
+        PL_W    $00009148+$2994,$0000
+    PL_ENDIF
+
+    PL_IFC1X 5 ; All gold collected
+        PL_L    $00003206+$2994,$426d009a
+        PL_NOPS $0000320a+$2994,1
+    PL_ENDIF
+
+    ; that's all folks
 
 	PL_END
 
@@ -239,6 +274,37 @@ pl_v1:
 	PL_PSS	$3287E,dmacon_wait_2,2
 	
 	PL_L	$1000,$FFFFFFFE
+
+    ; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/pphammer.md
+
+    PL_IFC1X 0 ; Unlimited lives
+        PL_W    $00006eb8,$0000
+        PL_W    $00006ec2,$0000
+    PL_ENDIF
+
+    PL_IFC1X 1 ; Unlimited health
+        PL_W    $0000caea,$0000
+        PL_W    $0000b0f4,$0000
+    PL_ENDIF
+
+    PL_IFC1X 2 ; Unlimited high jump
+        PL_W    $00009644,$0000
+    PL_ENDIF
+
+    PL_IFC1X 3 ; Unlimited oil
+        PL_W    $00009658,$0000
+    PL_ENDIF
+
+    PL_IFC1X 4 ; Unlimited time
+        PL_W    $00009148,$0000
+    PL_ENDIF
+
+    PL_IFC1X 5 ; All gold collected
+        PL_L    $00003206,$426d009a
+        PL_NOPS $0000320a,1
+    PL_ENDIF
+
+    ; that's all folks
 
 	PL_END
 	
@@ -331,12 +397,12 @@ keyhp
 	MOVEQ.L	#$50,D4
 	BSR.W	DBFD4
 
-	ror.b	d0
+	ror.b	#1,d0
 	not.b	d0
 	CMP.B	_base+ws_keyexit(pc),d0
 	beq.b	QUIT
 	not.b	d0
-	rol.b	d0
+	rol.b	#1,d0
 
 	RTS
 
