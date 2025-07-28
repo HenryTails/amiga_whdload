@@ -15,7 +15,7 @@ crc_v2	= $08b8	;original (ntsc?)
 
 
 
-	INCDIR	Include:
+	INCDIR	SOURCES:Include/
 	INCLUDE	whdload.i
 	IFD BARFLY
 	OUTPUT	"PPHammer.slave"
@@ -49,7 +49,7 @@ _expmem		dc.l	0			;ws_ExpMem
 		dc.w	_config-_base		;ws_config
 
 DECL_VERSION:MACRO
-	dc.b	"2.0"
+	dc.b	"2.1"
 	IFD BARFLY
 		dc.b	" "
 		INCBIN	"T:date"
@@ -66,9 +66,10 @@ _config
 	dc.b	0
 _name		dc.b	"P.P. Hammer",0
 _copy		dc.b	"1991 Demonware",0
-_info		dc.b	"installed by Harry & JOTD",10
+_info		dc.b	"installed by Harry & JOTD & StingRay",10
 		dc.b	"Version "
 		DECL_VERSION
+		dc.b	" (03.11.2017)",0
 		dc.b	0
 		even
 
@@ -84,18 +85,8 @@ _start:	;	A0 = resident loader
 		move.l	#CACRF_EnableI,d0	;enable instruction cache
 		move.l	d0,d1			;mask
 		jsr	(resload_SetCACR,a0)
-	MOVE.B	qkey(PC),d0
-	NOT.B	D0
-	ROL.B	#1,D0
-	LEA.L	_quitkey(PC),a0
-	MOVE.B	d0,(A0)
-;	MOVE.B	qkey(PC),d0
-;	SUBQ.B	#2,D0
-;	NOT.B	D0
-;	ROL.B	#1,D0
-;	LEA.L	keyhp\.tkey(PC),a0
-;	MOVE.B	d0,(A0)
-;	BSET	#1,$BFE001
+
+
 
 	LEA.L	$20000,A1		;ADDY
 	MOVE.L	#$20000,D0		;LEN
@@ -117,6 +108,9 @@ _start:	;	A0 = resident loader
 	MOVE.W	#$4ef9,$2023e
 	pea	patch1(PC)
 	MOVE.L	(A7)+,$20240
+
+
+	move.w	#$60<<8+($4a-$38)-2,$20038	; skip drive access
 	
 	JMP	$20020
 
@@ -137,7 +131,7 @@ active_fire_loop:
 	move.w	#1,d4
 	bsr	DBFD4
 	move.l	(a7)+,d4
-	TST.B	$BFE001		;0958a: 4a3900bfe001
+	TST.B	$BFE001
 	rts
 
 wait_after_dma_enable:
@@ -145,16 +139,16 @@ wait_after_dma_enable:
 
 	movem.l	D4,-(A7)
 	moveq.l	#7,D4
-	bsr	DBFD4
+	bsr.w	DBFD4
 	movem.l	(A7)+,D4
 	rts
 
 dmacon_wait_1
-	MOVE.W	82(A5),$DFF096		;32874: 33ed005200dff096
-	bra	wait_after_dma_enable
+	MOVE.W	82(A5),$DFF096
+	bra.b	wait_after_dma_enable
 dmacon_wait_2
-	MOVE.W	80(A5),$DFF096		;3287e: 33ed005000dff096
-	bra	wait_after_dma_enable
+	MOVE.W	80(A5),$DFF096
+	bra.b	wait_after_dma_enable
 	
 	   
 pl_v2:
@@ -191,6 +185,7 @@ pl_v2:
 	; fix sound/music play
 	PL_PSS	$35208,dmacon_wait_1,2
 	PL_PSS	$35212,dmacon_wait_2,2
+
 
 	PL_END
 
@@ -244,6 +239,7 @@ pl_v1:
 	PL_PSS	$3287E,dmacon_wait_2,2
 	
 	PL_L	$1000,$FFFFFFFE
+
 	PL_END
 	
 PATCH1O
@@ -304,8 +300,7 @@ loadrout
 ;	MOVE.L	a1,a1
 	MOVE.L	a2,a0
 	MOVE.L	_resload(PC),a3
-	jsr	(resload_LoadFile,a3)
-	rts
+	jmp	resload_LoadFile(a3)
 
 
 DBFD4
@@ -336,24 +331,21 @@ keyhp
 	MOVEQ.L	#$50,D4
 	BSR.W	DBFD4
 
-	CMP.B	_quitkey(pc),D0
-	BEQ.S	QUIT
+	ror.b	d0
+	not.b	d0
+	CMP.B	_base+ws_keyexit(pc),d0
+	beq.b	QUIT
+	not.b	d0
+	rol.b	d0
 
-;	CMP.B	#$0,D0
-;.TKEY	EQU	*-1
-;	BNE.S	.1
-;	EOR.B	#$E0,$57E0F
-.1
 	RTS
-_quitkey
-	dc.b	0
-	even
 
 
-QUIT	pea	TDREASON_OK
-	bra	_end
-BADVER	pea	TDREASON_WRONGVER
+
+QUIT	pea	(TDREASON_OK).w
+	bra.b	_end
+BADVER	pea	(TDREASON_WRONGVER).w
 _end	move.l	(_resload,pc),-(a7)
-	add.l	#resload_Abort,(a7)
+	addq.l	#resload_Abort,(a7)
 	rts
 

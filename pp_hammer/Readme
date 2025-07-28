@@ -2,8 +2,8 @@ That patch applies to PP Hammer (c) 1991 Demonware, both original and
 rerelease version.
 
 
-This install has the slave-version 2.0 and the imager-version 1.00.
-It needs WHDLoad 17 and The Patcher1.05 or higher in the path 
+This install has the slave-version 2.0 and the imager-version 1.0.
+It needs WHDLoad 17 and RawDIC 4.6 or higher in the path 
 (eg in c:). To install from a different drive than df0: select
 Expert as installation mode.
 
@@ -24,6 +24,11 @@ Report bugs with the bug report form on that page.
 
 
 history:
+
+version 2.1 (03.11.2017) done by StingRay:
+- RawDIC imager
+- Disk access in budget release disabled
+- New install script
 
 Version 2.0-B (16.02.2017):
 
