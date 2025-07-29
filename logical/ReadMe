@@ -1,0 +1,62 @@
+
+ THIS PACKAGE COMES WITH ABSOLUTELY NO WARRANTY OF ANY KIND, EITHER EXPRESS OR
+ IMPLIED, STATUTORY OR OTHERWISE. THE ENTIRE RISK AS TO USE, RESULTS AND
+ PERFORMANCE OF THE PACKAGE IS ASSUMED BY YOU AND IF THE PACKAGE SHOULD PROVE
+ TO BE DEFECTIVE, YOU ASSUME THE ENTIRE COST OF ALL NECESSARY SERVICING,
+ REPAIR OR OTHER REMEDIATION.
+ UNDER NO CIRCUMSTANCES, CAN THE AUTHOR BE HELD RESPONSIBLE FOR ANY DAMAGE
+ CAUSED IN ANY USUAL, SPECIAL, OR ACCIDENTAL WAY, ALSO IF THE OWNER OR A THIRD
+ PARTY HAS BEEN POINTED AT SUCH POSSIBILITIES OF DAMAGE.
+
+ This install applies to "Logical" © 1991 Raimbow Arts.
+
+ This install requires WHDLoad and DIC to be in the path. Both can be found in
+ the WHDLoad package.
+ To install from a different drive than DF0: select installation mode Expert.
+
+ The installed program requires 1 MB ChipMem and 0.5 MB OtherMem.
+ It can be quit by pressing F10 (key can be changed with Tooltype "QuitKey=").
+
+ The kickstart image must be located in the directory "Devs:Kickstarts"
+ and must be named "kick34005.A500". The image can be extracted from an
+ A500 with tools like "GrabKick" or similar which can be found on Aminet.
+ If the image is the wrong version or altered in any way, WHDLoad will
+ quit with an appropriate error message.
+
+ Additionally the file "kick34005.A500.RTB" must be installed in the same
+ directory as the kickstart image. It can be found in the archive
+ "util/boot/skick343.lha" on Aminet.
+
+ If you have problems with this installation please try and get a newer
+ version of this package from the WHDLoad WWW-Page. If that doesn't help try
+ some Tooltypes like NOCACHE, NOAUTOVEC, NOVBRMOVE, NOMMU, PAL or NTSC. If
+ that also fails, please inform the author via the Bug-Report-Form which
+ can be accessed on the WHDLoad WWW-Page.
+
+ For the full WHDLoad package, other installs and updates refer to:
+        http://www.whdload.de/
+ or     aminet:dev/misc/whdload#?
+ and    aminet:game/patch/
+
+ version 1.1 (28.08.03) done by C-Fou
+ - CDTV version support added
+ - 2 Access Faults debugged (CDTV)
+ - CUSTOM1 Tooltype used to skip title screen
+ - slave rewritten to use files and not disk image but:
+   Warning!!!: you must re-install game to use this patch with ECS
+ - Exotica icon added
+
+ version 1.0 (24.11.01) done by C-Fou
+ - initial release
+ - Using Wepl's KickEmul
+ - Load/Save high score and edited level redirided to HD in Disk.1
+   (to enter in the level editor type 'THE FINAL CUT' like password)
+ - 3 Access Faults debugged
+ - Insert disk routine debugged
+ - Manual Protection ripped
+ - Cheat file added
+ - Debugged with SnoopEcs tooltype
+ - GlowIcon Added
+
+********************* Thanks Jotd for ECS version *****************
+
