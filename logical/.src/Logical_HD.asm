@@ -45,7 +45,9 @@ QUIT_AFTER_PROGRAM_EXIT
 	INCDIR	Includes:
 	INCLUDE	whdload.i
 	INCLUDE	whdmacros.i
-	INCLUDE	lvo/dos.i
+    IFND BARFLY ; conflict from "INCLUDE	Sources:whdload/kick13.s"
+        INCLUDE     lvo/dos.i
+    ENDC
 	IFD	BARFLY
 
 		OUTPUT	"Logical.Slave"
@@ -114,7 +116,8 @@ slv_CurrentDir	dc.b	"data",0
 slv_name	dc.b	"Logical ",0
 slv_copy	dc.b	"1991 Rainbow Arts.",0
 slv_info	dc.b	"adapted for WHDLoad by CFou!",-1
-		dc.b	"Version 1.2 "
+            dc.b    "Trainer +3 by HenryTails",-1
+            dc.b    "Version 1.3 "
 	IFD BARFLY
 		INCBIN	"T:date"
 		dc.b 	-1
@@ -122,8 +125,12 @@ slv_info	dc.b	"adapted for WHDLoad by CFou!",-1
 		dc.b	"using Wepl's kick13 emul"
 		dc.b	0
 	IFGE slv_Version-17
-slv_config	dc.b	"C1:B:Skip title screen;"
-		;dc.b	"C2:L:Game Speed:Default,Very Fast,Fast,Normal,Slow,Very Slow;"
+slv_config
+        dc.b    "C1:B:Skip title screen;"
+        dc.b    "C2:X:Unlimited lives:0;"
+        dc.b    "C2:X:Disable next ball timer:1;"
+        dc.b    "C2:X:Disable level timer:2;"
+;        dc.b    "C2:L:Game Speed:Default,Very Fast,Fast,Normal,Slow,Very Slow;"
 	ENDC
 		dc.b	0
         EVEN
@@ -447,8 +454,8 @@ _callargs	ds.b	208
 _tag2
 		dc.l	WHDLTAG_CUSTOM1_GET
 _custom1	dc.l	0
-;		dc.l	WHDLTAG_CUSTOM2_GET
-;_custom2	dc.l	0
+		dc.l	WHDLTAG_CUSTOM2_GET
+_custom2	dc.l	0
 ;		dc.l	WHDLTAG_CUSTOM3_GET
 ;_custom3	dc.l	0
 ;		dc.l	WHDLTAG_CUSTOM4_GET
@@ -579,7 +586,48 @@ patch_cdtv
                 bne .pas2
                 move.l #_adr,2(a0);  one access FALSE
 .pas2
-  
+
+                ; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/logical_cdtv.md
+
+;                tst.w $fc0000 ; uae debugger trigger on "w 1 fc0000 2 R"
+
+                ; Unlimited lives
+                move.l  (_custom2,pc),d0
+                btst    #0,d0
+                beq     .skip_t1
+                move.l  a1,d0
+                add.l   #$056c-$24,d0
+                move.l  d0,a0
+                cmp.l   #$53ad8a32,(a0)
+                bne     .skip_t1
+                move.l  #$4e714e71,(a0)
+.skip_t1
+
+                ; Disable next ball timer
+                move.l  (_custom2,pc),d0
+                btst    #1,d0
+                beq     .skip_t2
+                move.l  a1,d0
+                add.l   #$14fc-$24,d0
+                move.l  d0,a0
+                cmp.l   #$53ad83e6,(a0)
+                bne     .skip_t2
+                move.l  #$4e714e71,(a0)+
+                move.l  #$4e714e71,(a0)
+.skip_t2
+
+                ; Disable level timer
+                move.l  (_custom2,pc),d0
+                btst    #2,d0
+                beq     .skip_t3
+                move.l  a1,d0
+                add.l   #$0454-$24,d0
+                move.l  d0,a0
+                cmp.l   #$52ad839a,(a0)
+                bne     .skip_t3
+                move.l  #$4e714e71,(a0)
+.skip_t3
+
                 movem.l (a7)+,d0-d7/a0-a6
                 rts
 
@@ -656,6 +704,47 @@ patch_ecs
                 bne .pas2
                 move.l #_adr,(a0);  one access FALSE
 .pas2
+
+                ; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/logical.md
+
+;                tst.w $fc0000 ; uae debugger trigger on "w 1 fc0000 2 R"
+
+                ; Unlimited lives
+                move.l  (_custom2,pc),d0
+                btst    #0,d0
+                beq     .skip_t1
+                move.l  a1,d0
+                add.l   #$0560-$24,d0
+                move.l  d0,a0
+                cmp.l   #$53ad8a10,(a0)
+                bne     .skip_t1
+                move.l  #$4e714e71,(a0)
+.skip_t1
+
+                ; Disable next ball timer
+                move.l  (_custom2,pc),d0
+                btst    #1,d0
+                beq     .skip_t2
+                move.l  a1,d0
+                add.l   #$14e0-$24,d0
+                move.l  d0,a0
+                cmp.l   #$53ad83c4,(a0)
+                bne     .skip_t2
+                move.l  #$4e714e71,(a0)+
+                move.l  #$4e714e71,(a0)
+.skip_t2
+
+                ; Disable level timer
+                move.l  (_custom2,pc),d0
+                btst    #2,d0
+                beq     .skip_t3
+                move.l  a1,d0
+                add.l   #$0454-$24,d0
+                move.l  d0,a0
+                cmp.l   #$52ad8378,(a0)
+                bne     .skip_t3
+                move.l  #$4e714e71,(a0)
+.skip_t3
 
                 movem.l (a7)+,d0-d7/a0-a6
                 rts
