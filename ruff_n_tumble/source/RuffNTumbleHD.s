@@ -69,8 +69,16 @@ _expmem
 _config
         dc.b    "BW;"
         dc.b    "C2:B:use 2nd/blue button for jump;"
-		dc.b	0
-		even
+        dc.b    "C1:X:Unlimited lives:0;"
+        dc.b    "C1:X:Unlimited energy:1;"
+        dc.b    "C1:X:All marbles collected:2;"
+        dc.b    "C1:X:Pickup (P) fully refills special weapon:3;"
+        dc.b    "C1:X:Unlimited regular ammo:4;"
+        dc.b    "C1:X:Unlimited special ammo:5;"
+        dc.b    "C1:X:Disable enemy collisions:6;"
+        dc.b    "C1:X:Universal key:7;"
+        dc.b    0
+        even
 		
 ;============================================================================
 
@@ -80,7 +88,7 @@ _config
 
 
 DECL_VERSION:MACRO
-	dc.b	"2.8"
+    dc.b    "2.9"
 	IFD BARFLY
 		dc.b	" "
 		INCBIN	"T:date"
@@ -91,21 +99,19 @@ DECL_VERSION:MACRO
 	ENDC
 	ENDM
 
-_name		dc.b	"Ruff'N'Tumble"
-		dc.b	0
-_copy		dc.b	"1994 Wonderkind/Renegade",0
-_info		dc.b	"adapted & fixed by JOTD",10,10
-		dc.b	"CD32 controls by Earok:",10,10
-		dc.b	"Menu: bwd enable options",10
-		dc.b	"      buttons allow to enter codes",10
-		dc.b	"      fwd toggles music",10,10
-		dc.b	"Game: bwd+fwd quits game",10
-		dc.b	"      bwd replays",10
-		dc.b	"      play pauses",10,10
-		
-		dc.b	"Version "
-		DECL_VERSION
-		dc.b	0
+_name   dc.b    "Ruff'N'Tumble",0
+_copy   dc.b    "1994 Wonderkind/Renegade",0
+_info   dc.b    "adapted & fixed by JOTD, T+8 by HenryTails",10
+        dc.b    "Version "
+            DECL_VERSION
+        dc.b    10,10
+        dc.b    "CD32 controls by Earok:",10,10
+        dc.b    "  Menu: bwd enable options          ",10
+        dc.b    "        buttons allow to enter codes",10
+        dc.b    "        fwd toggles music           ",10
+        dc.b    "  Game: bwd+fwd quits game          ",10
+        dc.b    "        bwd replays                 ",10
+        dc.b    "        play pauses                 ",0
 
 ; version xx.slave works
 
@@ -744,6 +750,150 @@ PATCH_2ND_BUTTON:MACRO
 	move.l	(a7)+,(a2)
 	ENDM
 
+; activate trainer, for more information read https://github.com/HenryTails/amiga_game_patches/blob/main/ruffntumble.md
+
+PATCH_TRAINER:MACRO
+        movem.l a0-a2,-(a7)
+        lea    pl_trainer_world_\1(pc),a0
+        move.l extbase(pc),a1
+        move.l _resload(pc),a2
+;        tst.w  $fc0000                        ; uae debugger trigger on "w 1 fc0000 2 R"
+        jsr    resload_Patch(a2)
+        movem.l (a7)+,a0-a2
+    ENDM
+
+pl_trainer_world_1
+    PL_START
+        PL_IFC1X 0  ; Unlimited lives
+            PL_W    $005d0eb2-$00576000,$4a38
+        PL_ENDIF
+        PL_IFC1X 1  ; Unlimited energy
+            PL_NOPS $005d07e6-$00576000,2
+        PL_ENDIF
+        PL_IFC1X 2  ; All marbles collected
+            PL_L    $005ce242-$00576000,$42783e44
+            PL_L    $005ce246-$00576000,$42783e46
+            PL_L    $005ce24a-$00576000,$42783e48
+            PL_NOPS $005ce24e-$00576000,3
+        PL_ENDIF
+        PL_IFC1X 3  ; Pickup (P) fully refills special weapon
+            PL_W    $005d1862-$00576000,$0300
+        PL_ENDIF
+        PL_IFC1X 4  ; Unlimited regular ammo
+            PL_NOPS $005d1828-$00576000,1
+            PL_W    $005d182a-$00576000,$6002
+        PL_ENDIF
+        PL_IFC1X 5  ; Unlimited special ammo
+            PL_NOPS $005d17f0-$00576000,1
+        PL_ENDIF
+        PL_IFC1X 6  ; Disable enemy collisions
+            PL_W    $005d0888-$00576000,$6006
+        PL_ENDIF
+        PL_IFC1X 7  ; Universal key
+            PL_NOPS $005d14c2-$00576000,3
+            PL_NOPS $005d14d2-$00576000,3
+        PL_ENDIF
+    PL_END
+
+pl_trainer_world_2
+    PL_START
+        PL_IFC1X 0  ; Unlimited lives
+            PL_W    $000e02fc-$80000,$4a38
+        PL_ENDIF
+        PL_IFC1X 1  ; Unlimited energy
+            PL_NOPS $000dfc30-$80000,2
+        PL_ENDIF
+        PL_IFC1X 2  ; All marbles collected
+            PL_L    $000dd68c-$80000,$42783e44
+            PL_L    $000dd690-$80000,$42783e46
+            PL_L    $000dd694-$80000,$42783e48
+            PL_NOPS $000dd698-$80000,3
+        PL_ENDIF
+        PL_IFC1X 3  ; Pickup (P) fully refills special weapon
+            PL_W    $000e0cac-$80000,$0300
+        PL_ENDIF
+        PL_IFC1X 4  ; Unlimited regular ammo
+            PL_NOPS $000e0c72-$80000,1
+            PL_W    $000e0c74-$80000,$6002
+        PL_ENDIF
+        PL_IFC1X 5  ; Unlimited special ammo
+            PL_NOPS $000e0c3a-$80000,1
+        PL_ENDIF
+        PL_IFC1X 6  ; Disable enemy collisions
+            PL_W    $000dfcd2-$80000,$6006
+        PL_ENDIF
+        PL_IFC1X 7  ; Universal key
+            PL_NOPS $000e090c-$80000,3
+            PL_NOPS $000e091c-$80000,3
+        PL_ENDIF
+    PL_END
+
+pl_trainer_world_3
+    PL_START
+        PL_IFC1X 0  ; Unlimited lives
+            PL_W    $000d9206-$80000,$4a38
+        PL_ENDIF
+        PL_IFC1X 1  ; Unlimited energy
+            PL_NOPS $000d8b3a-$80000,2
+        PL_ENDIF
+        PL_IFC1X 2  ; All marbles collected
+            PL_L    $000d6596-$80000,$42783e44
+            PL_L    $000d659a-$80000,$42783e46
+            PL_L    $000d659e-$80000,$42783e48
+            PL_NOPS $000d65a2-$80000,3
+        PL_ENDIF
+        PL_IFC1X 3  ; Pickup (P) fully refills special weapon
+            PL_W    $000d9bb6-$80000,$0300
+        PL_ENDIF
+        PL_IFC1X 4  ; Unlimited regular ammo
+            PL_NOPS $000d9b7c-$80000,1
+            PL_W    $000d9b7e-$80000,$6002
+        PL_ENDIF
+        PL_IFC1X 5  ; Unlimited special ammo
+            PL_NOPS $000d9b44-$80000,1
+        PL_ENDIF
+        PL_IFC1X 6  ; Disable enemy collisions
+            PL_W    $000d8bdc-$80000,$6006
+        PL_ENDIF
+        PL_IFC1X 7  ; Universal key
+            PL_NOPS $000d9816-$80000,3
+            PL_NOPS $000d9826-$80000,3
+        PL_ENDIF
+    PL_END
+
+pl_trainer_world_4
+    PL_START
+        PL_IFC1X 0  ; Unlimited lives
+            PL_W    $000d6dc4-$80000,$4a38
+        PL_ENDIF
+        PL_IFC1X 1  ; Unlimited energy
+            PL_NOPS $000d66f8-$80000,2
+        PL_ENDIF
+        PL_IFC1X 2  ; All marbles collected
+            PL_L    $000d4154-$80000,$42783e44
+            PL_L    $000d4158-$80000,$42783e46
+            PL_L    $000d415c-$80000,$42783e48
+            PL_NOPS $000d4160-$80000,3
+        PL_ENDIF
+        PL_IFC1X 3  ; Pickup (P) fully refills special weapon
+            PL_W    $000d7744-$80000,$0300
+        PL_ENDIF
+        PL_IFC1X 4  ; Unlimited regular ammo
+            PL_NOPS $000d770a-$80000,1
+            PL_W    $000d770c-$80000,$6002
+        PL_ENDIF
+        PL_IFC1X 5  ; Unlimited special ammo
+            PL_NOPS $000d76d2-$80000,1
+        PL_ENDIF
+        PL_IFC1X 6  ; Disable enemy collisions
+            PL_W    $000d679a-$80000,$6006
+        PL_ENDIF
+        PL_IFC1X 7  ; Universal key
+            PL_NOPS $000d73d4-$80000,3
+            PL_NOPS $000d73e4-$80000,3
+        PL_ENDIF
+    PL_END
+
 SET_LEVEL:MACRO
 	lea	level(pc),A2
 	move.l	#\1,(A2)
@@ -821,6 +971,8 @@ end_rob_decrunch:
 
 	PATCH_BTST_1	$5C3FE
 
+    PATCH_TRAINER    1
+
 	SET_LEVEL	1
 
 	bsr	Remove24BitCalls
@@ -847,6 +999,8 @@ end_rob_decrunch:
 	PATCH_24BIT_2	$63132
 
 	PATCH_BTST_1	$61848
+
+    PATCH_TRAINER    2
 
 	SET_LEVEL	2
 
@@ -875,6 +1029,8 @@ end_rob_decrunch:
 
 	PATCH_BTST_1	$5A752
 
+    PATCH_TRAINER    3
+
 	SET_LEVEL	3
 
 	bsr	Remove24BitCalls
@@ -901,6 +1057,8 @@ end_rob_decrunch:
 	PATCH_BTST_1	$582E0
 
 	PATCH_ZERO	$5981C
+
+    PATCH_TRAINER    4
 
 	SET_LEVEL	4
 

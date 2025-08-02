@@ -45,9 +45,9 @@
 	BITDEF	JP,BTN_RED,$16
 	BITDEF	JP,BTN_BLU,$17
 
-
-	XDEF	_detect_controller_types
-	XDEF	_read_joystick
+;   I had to comment it out cause WHDLoad throws 'DOS-Error #235 (bad loadfile hunk)' when compiled using BAsm
+;    XDEF    _detect_controller_types
+;    XDEF    _read_joystick
 
 ; optional call to differentiate 2-button joystick from CD32 joypad
 ; default is "all joypads", but when using 2-button joystick second button,

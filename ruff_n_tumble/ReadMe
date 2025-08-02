@@ -8,7 +8,7 @@
  CAUSED IN ANY USUAL, SPECIAL, OR ACCIDENTAL WAY, ALSO IF THE OWNER OR A THIRD
  PARTY HAS BEEN POINTED AT SUCH POSSIBILITIES OF DAMAGE.
 
- This install applies to "Ruff'N'Tumble" © 1994 Renegade
+ This install applies to "Ruff'N'Tumble" (c) 1994 Renegade
 
  This install requires WHDLoad and DIC to be in the path. Both can be found in
  the WHDLoad package.
@@ -27,6 +27,10 @@
 	http://www.whdload.de/
  or	aminet:dev/misc/whdload#?
  and	aminet:game/patch/
+
+ version 2.9 (03.08.2025) done by HenryTails:
+ - Trainer +8 (x4 worlds)
+ - both slaves tested
 
  version 2.8 (22.10.2024) done by JOTD:
  - adapted for WHDload 19
@@ -103,6 +107,7 @@
  BUGS:
 
 - A gameover could happen when you finish a level by killing the boss.
+  It might happen when level code was used. Is it bug or game just behaves that way?
 - Some small gfx corruption can occur on a game over (http://mantis.whdload.de/view.php?id=3870)
   This has been investigated but it's 1) random 2) very difficult to fix since there are a ton of blitter operations
   done at the same time.
